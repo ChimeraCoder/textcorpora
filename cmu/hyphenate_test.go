@@ -23,15 +23,16 @@ func Test_CMUSyllables(t *testing.T) {
 	}
 
 	TestWords := map[string]int{
-		"Zombie":     2,
-		"antibiotic": 5,
-		"RECORDED":   3,
-		"recaptured": 3,
-		"blame":      1,
-		"discussion": 3,
-		"whims":      1,
-		"tilting":    2,
-		"gong":       1,
+		"Zombie":              2,
+		"antibiotic":          5,
+		"RECORDED":            3,
+		"recaptured":          3,
+		"blame":               1,
+		"discussion":          3,
+		"whims":               1,
+		"tilting":             2,
+		"gong":                1,
+		"SomeNonexistentWord": 0, // Words not in corpus should return 0
 	}
 
 	for word, expected := range TestWords {
