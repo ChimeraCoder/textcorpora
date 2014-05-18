@@ -1,0 +1,12 @@
+textcorpora
+==============
+
+TextCorpora is a helper package that provides an interface for various [corpora](https://en.wikipedia.org/wiki/Text_corpus). It was originally written for use in the ReadingLevel library. It is provided as a separate package for convenience - both to faciliate use of corpora in other applications and libraries, and also to allow users of the ReadingLevel library the ability to plug in an alternative corpus if desired.
+
+
+### Storage
+
+The location for each corpus is stored in a location provided by [appdirs](github.com/Wessie/appdirs). For example, on Linux, the current version of the CMU corpus will be downloaded and saved to `~/.local/share/cmudict/.1/cmudict.0.7a.corpus`.
+
+ 
+
