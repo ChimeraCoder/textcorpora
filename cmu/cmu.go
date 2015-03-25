@@ -1,8 +1,6 @@
 package cmu
 
 import (
-	"github.com/ChimeraCoder/textcorpora"
-	"github.com/Wessie/appdirs"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,6 +10,9 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/ChimeraCoder/textcorpora"
+	"github.com/Wessie/appdirs"
 )
 
 var app = appdirs.New("cmudict", "chimeracoder", ".1")
@@ -99,6 +100,22 @@ func (c cmuCorpus) Syllables(word string) int {
 	return count
 }
 
+// Words returns the number of words in the corpus
 func (c cmuCorpus) Words() int {
 	return len(c)
+}
+
+// Words cursor returns a channel that can be used to
+// iterate over the words in the corpus
+func (c cmuCorpus) WordsCursor() (cursor chan string) {
+	cursor = make(chan string)
+
+	go func() {
+		for word := range map[string][]string(c) {
+			cursor <- word
+		}
+		close(cursor)
+	}()
+
+	return
 }
