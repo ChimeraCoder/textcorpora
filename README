@@ -1,6 +1,8 @@
 textcorpora
 ==============
 
+[![GoDoc](https://godoc.org/github.com/ChimeraCoder/textcorpora?status.png)](https://godoc.org/github.com/ChimeraCoder/textcorpora)
+
 TextCorpora is a helper package that provides an interface for various [corpora](https://en.wikipedia.org/wiki/Text_corpus). It was originally written for use in the [ReadingLevel](https://github.com/ChimeraCoder/readinglevel) library. It is provided as a separate package for convenience - both to faciliate use of corpora in other applications and libraries, and also to allow users of the ReadingLevel library the ability to plug in an alternative corpus if desired.
 
 
