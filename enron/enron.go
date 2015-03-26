@@ -3,11 +3,13 @@ package enron
 import (
 	"archive/tar"
 	"bufio"
+	"bytes"
 	"compress/gzip"
-	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/mail"
 	"os"
 	"path"
 	"strings"
@@ -97,37 +99,71 @@ func (c enronCorpus) WordsCursor() (cursor chan string) {
 	return
 }
 
-func untar(infile string) error {
+type Email struct {
+	Name     string
+	Header   mail.Header
+	Contents []byte
+
+	TarHeader *tar.Header
+	Error     error // If any error was encountered when parsing this email, it will be stored here
+}
+
+func (e Email) Parse() (*mail.Message, error) {
+	return mail.ReadMessage(bytes.NewBuffer(e.Contents))
+}
+
+func untar(infile string) (chan Email, error) {
+	result := make(chan Email)
 	fin, err := os.Open(infile)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer fin.Close()
 
 	// Open the gzip file for decompression into a tar archive
 	gr, err := gzip.NewReader(bufio.NewReader(fin))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Open the tar archive for reading.
 	tr := tar.NewReader(bufio.NewReader(gr))
 
-	// Iterate through the files in the archive.
-	for {
-		hdr, err := tr.Next()
-		if err == io.EOF {
-			// end of tar archive
-			break
+	go func() {
+		defer fin.Close()
+		// Iterate through the files in the archive.
+		for {
+			e := &Email{}
+			hdr, err := tr.Next()
+			e.TarHeader = hdr
+			if err == io.EOF {
+				// end of tar archive
+				break
+			}
+			if err != nil {
+				e.Error = err
+				result <- *e
+				continue
+			}
+			message, err := mail.ReadMessage(tr)
+			if err != nil {
+				if err == io.EOF {
+					// TODO figure out how to to handle this
+					continue
+				}
+				e.Error = err
+				result <- *e
+				break
+			}
+			bts, err := ioutil.ReadAll(message.Body)
+			if err != nil {
+				e.Error = err
+				result <- *e
+				continue
+			}
+			e.Contents = bts
+			result <- *e
 		}
-		if err != nil {
-			log.Fatalln(err)
-		}
-		fmt.Printf("Contents of %s:\n", hdr.Name)
-		if _, err := io.Copy(os.Stdout, tr); err != nil {
-			log.Fatalln(err)
-		}
-		fmt.Println()
-	}
-	return err
+		close(result)
+	}()
+	return result, nil
 }
