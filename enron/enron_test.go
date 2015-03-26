@@ -5,6 +5,13 @@ import (
 	"testing"
 )
 
+func Test_GetCorpus(t *testing.T) {
+	_, err := EnronCorpus()
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func Test_Untar(t *testing.T) {
 	emails, err := untar(path.Join(app.UserData(), _CorpusFilename))
 	if err != nil {
