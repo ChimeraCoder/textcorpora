@@ -6,7 +6,7 @@ import (
 )
 
 func Test_GetCorpus(t *testing.T) {
-	_, err := EnronCorpus()
+	_, err := NewCorpus()
 	if err != nil {
 		t.Error(err)
 	}

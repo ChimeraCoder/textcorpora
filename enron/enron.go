@@ -12,23 +12,23 @@ import (
 	"net/mail"
 	"os"
 	"path"
-	"strings"
-	"unicode"
 
-	"github.com/ChimeraCoder/textcorpora"
 	"github.com/Wessie/appdirs"
 )
 
 var app = appdirs.New("enroncorpus", "chimeracoder", ".1")
 
-type enronCorpus map[string][]string
-
-var enronCorpusCached enronCorpus = map[string][]string{}
-
 const _CorpusFilename = "enron_mail_20110402.tgz"
 const _CorpusUrl = "https://www.cs.enron.edu/~./enron/enron_mail_20110402.tgz"
 
-func EnronCorpus() (textcorpora.Corpus, error) {
+
+// TODO make this satisfy the textcorpora interface
+
+type EnronCorpus struct {
+	EmailsCursor chan Email
+}
+
+func NewCorpus() (*EnronCorpus, error) {
 
 	filename := path.Join(app.UserData(), _CorpusFilename)
 	// Check if file already exists
@@ -57,46 +57,12 @@ func EnronCorpus() (textcorpora.Corpus, error) {
 		log.Printf("Wrote %d bytes", n)
 	}
 
-	return nil, nil
-}
-
-// Syllables returns the number of syllables for the word, according to the corpus
-// If the word is not in the corpus, it will return 0
-func (c enronCorpus) Syllables(word string) int {
-	phonemes, ok := c[strings.ToUpper(word)]
-	if !ok {
-		return 0
+	emailsCursor, err := untar(filename)
+	if err != nil {
+		return nil, err
 	}
 
-	count := 0
-	for _, phoneme := range phonemes {
-		for _, r := range phoneme {
-			if unicode.IsNumber(r) {
-				count++
-			}
-		}
-	}
-	return count
-}
-
-// Words returns the number of words in the corpus
-func (c enronCorpus) Words() int {
-	return len(c)
-}
-
-// Words cursor returns a channel that can be used to
-// iterate over the words in the corpus
-func (c enronCorpus) WordsCursor() (cursor chan string) {
-	cursor = make(chan string)
-
-	go func() {
-		for word := range map[string][]string(c) {
-			cursor <- word
-		}
-		close(cursor)
-	}()
-
-	return
+	return &EnronCorpus{emailsCursor}, nil
 }
 
 type Email struct {
