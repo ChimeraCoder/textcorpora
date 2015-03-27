@@ -21,7 +21,6 @@ var app = appdirs.New("enroncorpus", "chimeracoder", ".1")
 const _CorpusFilename = "enron_mail_20110402.tgz"
 const _CorpusUrl = "https://www.cs.enron.edu/~./enron/enron_mail_20110402.tgz"
 
-
 // TODO make this satisfy the textcorpora interface
 
 type EnronCorpus struct {
@@ -118,7 +117,7 @@ func untar(infile string) (chan Email, error) {
 				}
 				e.Error = err
 				result <- *e
-				break
+				continue
 			}
 			bts, err := ioutil.ReadAll(message.Body)
 			if err != nil {
