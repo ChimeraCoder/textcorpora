@@ -19,7 +19,7 @@ import (
 var app = appdirs.New("enroncorpus", "chimeracoder", ".1")
 
 const _CorpusFilename = "enron_mail_20110402.tgz"
-const _CorpusUrl = "https://www.cs.enron.edu/~./enron/enron_mail_20110402.tgz"
+const _CorpusUrl = "http://www.cs.cmu.edu/%7E./enron/enron_mail_20110402.tgz"
 
 // TODO make this satisfy the textcorpora interface
 
